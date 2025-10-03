@@ -71,9 +71,12 @@ class ProcessBuilder {
             args = args.concat(this.constructModList(modObj.fMods))
         }
 
-        // Hide access token
+        // Hide access token (safe)
         const loggableArgs = [...args]
-        loggableArgs[loggableArgs.findIndex(x => x === this.authUser.accessToken)] = '**********'
+        const tokenIndex = loggableArgs.indexOf(this.authUser.accessToken)
+        if(tokenIndex !== -1){
+            loggableArgs[tokenIndex] = '**********'
+        }
 
         logger.info('Launch Arguments:', loggableArgs)
 
@@ -274,29 +277,6 @@ class ProcessBuilder {
 
         return modList
     }
-
-    // /**
-    //  * Construct the mod argument list for forge 1.13
-    //  * 
-    //  * @param {Array.<Object>} mods An array of mods to add to the mod list.
-    //  */
-    // constructModArguments(mods){
-    //     const argStr = mods.map(mod => {
-    //         return mod.getExtensionlessMavenIdentifier()
-    //     }).join(',')
-
-    //     if(argStr){
-    //         return [
-    //             '--fml.mavenRoots',
-    //             path.join('..', '..', 'common', 'modstore'),
-    //             '--fml.mods',
-    //             argStr
-    //         ]
-    //     } else {
-    //         return []
-    //     }
-        
-    // }
 
     /**
      * Construct the mod argument list for forge 1.13 and Fabric
@@ -510,6 +490,7 @@ class ProcessBuilder {
                             val = this.authUser.accessToken
                             break
                         case 'user_type':
+                            // для custom оставляем 'mojang' — офлайн режиму без разницы
                             val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
                             break
                         case 'version_type':
@@ -594,6 +575,7 @@ class ProcessBuilder {
                         val = this.authUser.accessToken
                         break
                     case 'user_type':
+                        // для custom оставляем 'mojang'
                         val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
                         break
                     case 'user_properties': // 1.8.9 and below.
